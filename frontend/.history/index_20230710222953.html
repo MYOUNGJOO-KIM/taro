@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>운세보는 챗도지</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #333;
+            color: #fff;
+        }
+
+        img {
+            width:100%;
+            height:100%;
+        }
+
+        .chat-container {
+            width: 400px;
+            margin: 20px auto;
+            background-color: #222;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            height: 98vh;
+        }
+
+        .chat-header {
+            background-color: #111;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .chat-header h2 {
+            margin: 0;
+            color: #fff;
+            font-size: 24px;
+        }
+
+        .chat-body {
+            padding: 20px;
+            overflow-y: auto;
+            height: 74%;
+        }
+
+        .chat-message {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .chat-message.bot {
+            background-color: #444;
+            opacity: 0.7;
+        }
+
+        .chat-message.user {
+            background-color: #666;
+            opacity: 0.8;
+        }
+
+        .chat-input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-top: 1px solid #999;
+            color: #fff;
+            background-color: transparent;
+        }
+
+        .chat-button {
+            width: 100%;
+            padding: 10px;
+            background-color: #111111;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2>운명을 보는 부엉이</h2>
+        </div>
+        <div>
+            <!-- <img src="./asset/images/bg_small.jpg"> -->
+        </div>
+        <div class="chat-body" id="chatBody"></div>
+        <input type="text" class="chat-input" id="messageInput" placeholder="메시지를 입력하세요" onkeydown="handleKeyDown(event)">
+        <button class="chat-button" onclick="sendMessage()">전송</button>
+    </div>
+
+    <script>
+        const chatBody = document.getElementById('chatBody');
+        const messageInput = document.getElementById('messageInput');
+
+        displayMessage('난 마법의 부엉이 봉숙이 2살. 궁금한게 뭐야?', 'bot');
+
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message === '') {
+                return; // Do not proceed if the message is empty
+            }
+
+            displayMessage(message, 'user');
+            getFortune(message);
+
+            messageInput.value = '';
+        }
+
+        function displayMessage(message, sender) {
+            const div = document.createElement('div');
+            div.innerText = message;
+            div.classList.add('chat-message', sender);
+            chatBody.appendChild(div);
+            chatBody.scrollTop = chatBody.scrollHeight; // Scroll to the bottom of the chat messages
+        }
+
+        function handleKeyDown(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        async function getFortune(message) {
+            try {
+                const response = await fetch('http://localhost:3000/fortuneTell', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name: message })
+                });
+
+                const data = await response.json();
+                console.log(data);
+
+                displayMessage(data.assistant, 'bot');
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>
